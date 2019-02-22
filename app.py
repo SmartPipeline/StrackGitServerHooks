@@ -1,52 +1,45 @@
+# coding=utf8
+# Copyright (c) 2019 CineUse
+
+import os
+import imp
+import inspect
 from flask import Flask
-from flask_restful import reqparse, Api, Resource
-import json
-from strack_api.strack import Strack
+from flask_restful import Api, Resource
 
 app = Flask(__name__)
 api = Api(app)
 
-parser = reqparse.RequestParser()
-parser.add_argument('action', type=str)
-parser.add_argument('pull_request', type=dict)
-parser.add_argument('number', type=int)
-parser.add_argument('iid', type=int)
-parser.add_argument('title', type=str)
-parser.add_argument('state', type=str)
-parser.add_argument('merge_status', type=str)
-parser.add_argument('merge_commit_sha', type=str)
-parser.add_argument('url', type=str)
-parser.add_argument('source_branch', type=str)
-parser.add_argument('source_repo', type=dict)
-parser.add_argument('target_branch', type=str)
-parser.add_argument('target_repo', type=dict)
-parser.add_argument('project', type=dict)
-parser.add_argument('repository', type=dict)
-parser.add_argument('author', type=dict)
-parser.add_argument('updated_by', type=dict)
-parser.add_argument('sender', type=dict)
-parser.add_argument('target_user', type=dict)
-parser.add_argument('hook_name', type=str)
-parser.add_argument('password', type=str)
 
-# 初始化st对象
-st = Strack('http://129.204.29.79:88/strack', 'gitee', 'gitee2Strack')
+def register_hooks():
+    # 获取可用的hook，并注册对应的url
+    active_hooks = [        # FIXME: 从数据库抓取这些信息
+        {
+            'name': 'GiteePullRequest',
+            'url': '/gitee_strack_desktop_pr'
+         }
+    ]
+    for hook_info in active_hooks:
+        hook_name = hook_info.get('name', '')
+        # 导入hook类作为resource
+        hooks_dir = os.path.join(os.path.dirname(__file__), 'web_hooks')
+        module_file, module_path, description = imp.find_module(hook_name, [hooks_dir])
+        hook_module = imp.load_module(hook_name, module_file, module_path, description)
+        hook_class = getattr(hook_module, hook_name)
+        # 获取url
+        hook_url = hook_info.get('url')
+        if hook_url and inspect.isclass(hook_class) and issubclass(hook_class, Resource):
+            # 添加Hook到API
+            api.add_resource(hook_class, hook_url)
 
 
-class GiteePR(Resource):
-
-    def post(self):
-        # 解析payload
-        args = parser.parse_args()
-        #
-        return args.get('action'), 201
-
-
-api.add_resource(GiteePR, '/gitee_strack_desktop_pr')
+# 注册可用的hook
+register_hooks()
 
 
 @app.route('/')
-def hello_world():
+def index():
+    # TODO: 构建一个后台管理界面，允许用户维护自己的WebHook
     return 'Hello World!'
 
 
