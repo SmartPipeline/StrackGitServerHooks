@@ -3,7 +3,7 @@
 
 
 def clear_empty_args(arg_dict):
-    for key, value in arg_dict.items():
+    for key, value in list(arg_dict.items()):
         # pre-process
         if isinstance(value, str):
             value = value.strip()
