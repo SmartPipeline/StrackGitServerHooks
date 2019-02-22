@@ -2,7 +2,6 @@
 # Copyright (c) 2019 CineUse
 
 from flask_restful import reqparse, Resource
-from strack_api.strack import Strack
 
 
 parser = reqparse.RequestParser()
@@ -28,11 +27,10 @@ parser.add_argument('target_user', type=dict)
 parser.add_argument('hook_name', type=str)
 parser.add_argument('password', type=str)
 
-# 初始化st对象
-st = Strack('http://129.204.29.79:88/strack', 'gitee', 'gitee2Strack')
-
 
 class GiteePullRequest(Resource):
+    st = None
+    password = None
 
     def post(self):
         # 解析payload
