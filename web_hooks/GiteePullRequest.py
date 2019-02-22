@@ -1,6 +1,8 @@
 # coding=utf8
 # Copyright (c) 2019 CineUse
 
+import traceback
+
 from flask_restplus import Resource
 from utils.get_arg_parser import get_arg_parser
 from utils.parse_args import parse_args
@@ -48,10 +50,13 @@ class GiteePullRequest(Resource):
         return get_strack_api(self.st_info.get('url'), self.st_info.get('login'), self.st_info.get('passwd'))
 
     def post(self):
-        # 解析payload
-        args = parse_args(self.parser)
-        #
-        return args.get('action'), 201
+        try:
+            # 解析payload
+            args = parse_args(self.parser)
+            #
+            return args.get('action'), 201
+        except Exception as e:
+            return traceback.format_exc(), 401
 
 
 if __name__ == "__main__":
