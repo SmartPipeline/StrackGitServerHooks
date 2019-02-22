@@ -56,7 +56,7 @@ class GiteePullRequest(Resource):
             #
             return args.get('action'), 201
         except Exception as e:
-            return traceback.format_exc(), 401
+            return traceback.format_exc(), 400
 
 
 if __name__ == "__main__":
