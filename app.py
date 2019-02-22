@@ -35,8 +35,8 @@ def register_hooks():
         # 获取url
         if inspect.isclass(hook_class) and issubclass(hook_class, Resource):
             # 添加Hook到API
-            hook_namespace.add_resource(hook_class, hook_class.url)
             hook_namespace.expect(hook_class.parser)
+            hook_namespace.add_resource(hook_class, hook_class.url)
 
 
 # 注册可用的hook
