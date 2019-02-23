@@ -2,9 +2,9 @@
 # Copyright (c) 2019 CineUse
 
 import traceback
-from utils.get_arg_parser import get_arg_parser
-from utils.parse_args import parse_args
-from utils.get_strack_api import get_strack_api
+from src.utils.get_arg_parser import get_arg_parser
+from src.utils.parse_args import parse_args
+from src.utils.get_strack_api import get_strack_api
 from flask import Flask
 from flask_restplus import Api, Resource
 
