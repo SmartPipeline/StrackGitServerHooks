@@ -1,0 +1,12 @@
+[nux-dextop]
+name=Nux.Ro RPMs for general desktop use
+baseurl=http://192.168.31.46/repos/yum/nux-dextop/
+enabled=1
+gpgcheck=0
+protect=0
+
+[nux-dextop-testing]
+name=Nux.Ro RPMs for general desktop use - testing
+baseurl=http://li.nux.ro/download/nux/dextop-testing/el7/$basearch/
+enabled=0
+gpgcheck=0
