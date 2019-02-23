@@ -1,6 +1,6 @@
 # coding=utf8
 # Copyright (c) 2018 CineUse
-from utils.strack_api.strack import Strack
+from app.main.util.strack_api import Strack
 
 
 def get_strack_api(base_url, login, passwd):
