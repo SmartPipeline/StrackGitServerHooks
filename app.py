@@ -1,9 +1,10 @@
 # coding=utf8
 # Copyright (c) 2019 CineUse
-import glob
-import os
-import imp
-import inspect
+
+import traceback
+from utils.get_arg_parser import get_arg_parser
+from utils.parse_args import parse_args
+from utils.get_strack_api import get_strack_api
 from flask import Flask
 from flask_restplus import Api, Resource
 
@@ -12,35 +13,61 @@ app = Flask(__name__)
 api = Api(app)
 hook_namespace = api.namespace('git_hook', description='post from github/gitee web hooks.')
 
-HOOKS_DIR = os.path.join(os.path.dirname(__file__), 'web_hooks')
+
+arg_list = [
+    {'name': 'action', 'type': str, 'default': '', 'required': False},
+    {'name': 'pull_request', 'type': dict, 'default': '', 'required': False},
+    {'name': 'number', 'type': int, 'default': '', 'required': False},
+    {'name': 'iid', 'type': int, 'default': '', 'required': False},
+    {'name': 'title', 'type': str, 'default': '', 'required': False},
+    {'name': 'state', 'type': str, 'default': '', 'required': False},
+    {'name': 'merge_status', 'type': str, 'default': '', 'required': False},
+    {'name': 'merge_commit_sha', 'type': str, 'default': '', 'required': False},
+    {'name': 'url', 'type': str, 'default': '', 'required': False},
+    {'name': 'source_branch', 'type': str, 'default': '', 'required': False},
+    {'name': 'source_repo', 'type': dict, 'default': '', 'required': False},
+    {'name': 'target_branch', 'type': str, 'default': '', 'required': False},
+    {'name': 'target_repo', 'type': dict, 'default': '', 'required': False},
+    {'name': 'project', 'type': dict, 'default': '', 'required': False},
+    {'name': 'repository', 'type': dict, 'default': '', 'required': False},
+    {'name': 'author', 'type': dict, 'default': '', 'required': False},
+    {'name': 'updated_by', 'type': dict, 'default': '', 'required': False},
+    {'name': 'sender', 'type': dict, 'default': '', 'required': False},
+    {'name': 'target_user', 'type': dict, 'default': '', 'required': False},
+    {'name': 'hook_name', 'type': str, 'default': '', 'required': False},
+    {'name': 'password', 'type': str, 'default': '', 'required': False},
+]
+
+PARSER = get_arg_parser(arg_list)
 
 
-def get_hook_class(hook_name):
-    # 导入hook类作为resource
-    try:
-        module_file, module_path, description = imp.find_module(hook_name, [HOOKS_DIR])
-        hook_module = imp.load_module(hook_name, module_file, module_path, description)
-        hook_class = getattr(hook_module, hook_name)
-        return hook_class
-    except Exception as e:
-        return
+# @hook_ns.expect(PARSER)
+@hook_namespace.route('/strack_hook')
+class GiteePullRequest(Resource):
+    st_info = {
+        'url': 'http://129.204.29.79:88/strack',
+        'login': 'gitee',
+        'passwd': 'gitee2Strack'
+    }
 
+    password = 'CvIkY1V73fi5ikU4'
 
-def register_hooks():
-    # 获取可用的hook，并注册对应的url
-    active_hooks = glob.glob(HOOKS_DIR+"/*.py")
-    for hook_path in active_hooks:
-        hook_name = os.path.basename(hook_path)[:-3]
-        hook_class = get_hook_class(hook_name)
-        # 获取url
-        if inspect.isclass(hook_class) and issubclass(hook_class, Resource):
-            # 添加Hook到API
-            hook_namespace.expect(hook_class.parser)
-            hook_namespace.add_resource(hook_class, hook_class.url)
+    @property
+    def st(self):
+        return get_strack_api(self.st_info.get('url'), self.st_info.get('login'), self.st_info.get('passwd'))
 
+    @hook_namespace.response(201, 'User successfully created.')
+    @hook_namespace.doc('create a new user')
+    @hook_namespace.expect(PARSER)
+    def post(self):
+        try:
+            # 解析payload
+            args = parse_args(PARSER)
+            #
+            return args.get('action'), 201
+        except Exception as e:
+            return traceback.format_exc(), 400
 
-# 注册可用的hook
-register_hooks()
 
 if __name__ == '__main__':
     app.run(debug=True)
