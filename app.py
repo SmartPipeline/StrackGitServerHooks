@@ -4,7 +4,7 @@ import glob
 import os
 import imp
 import inspect
-from flask import Flask, g
+from flask import Flask
 from flask_restplus import Api, Resource
 
 
@@ -31,7 +31,12 @@ def register_hooks():
     active_hooks = glob.glob(HOOKS_DIR+"/*.py")
     for hook_path in active_hooks:
         hook_name = os.path.basename(hook_path)[:-3]
-        get_hook_class(hook_name)
+        hook_class = get_hook_class(hook_name)
+        # 获取url
+        if inspect.isclass(hook_class) and issubclass(hook_class, Resource):
+            # 添加Hook到API
+            hook_namespace.expect(hook_class.parser)
+            hook_namespace.add_resource(hook_class, hook_class.url)
 
 
 # 注册可用的hook
