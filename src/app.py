@@ -61,19 +61,19 @@ class GiteePullRequest(Resource):
     @hook_namespace.expect(PARSER)
     def post(self):
         if not self.st:
-            return u'Strack信息有误', 403
+            return u'wrong strack auth info', 403
         try:
             # 解析payload
             args = parse_args(PARSER)
             pull_request_info = args.get('pull_request', {})
             if not pull_request_info:
-                return u'没找到pull request信息', 403
+                return u'no pull request found', 403
             # 判断pr被merge的时候，结束对应的strack任务
             if args.get('action') == 'merge':
                 branch_name = args.get('source_branch')
                 st_issue = self.st.find_one('client', [['code', '=', branch_name]])
                 if not st_issue:
-                    return u'Issue %s 不存在，未做任何修改' % branch_name, 200
+                    return u'Issue %s dose not exists on strack, nothing changed' % branch_name, 200
                 # update st_task
                 approved_status = self.st.find_one('status', [['code', '=', 'approved']])
                 # merged_at = pull_request_info.get('merged_at')    获取合并的时间
@@ -82,9 +82,9 @@ class GiteePullRequest(Resource):
                     # 'end_time': merged_at  # 设置结束时间
                 }
                 result = self.st.update('client', st_issue.get('id'), new_data)
-                return u'已更新Issue信息，从Strack得到返回内容： %s' % result, 201
+                return u'Updated issue data on strack: %s' % result, 201
 
-            return u'未做任何修改', 200
+            return 'Nothing Changed', 200
         except Exception as e:
             return traceback.format_exc(), 400
 
