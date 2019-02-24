@@ -61,7 +61,7 @@ class GiteePullRequest(Resource):
     @hook_namespace.expect(PARSER)
     def post(self):
         if not self.st:
-                return 'Strack信息有误', 403
+            return 'Strack信息有误', 403
         try:
             # 解析payload
             args = parse_args(PARSER)
@@ -73,7 +73,7 @@ class GiteePullRequest(Resource):
                 branch_name = pull_request_info.get('source_branch')
                 st_issue = self.st.find_one('client', [['code', '=', branch_name]])
                 if not st_issue:
-                    return 'Issue不存在，未做任何修改', 204
+                    return 'Issue不存在，未做任何修改', 200
                 # update st_task
                 approved_status = self.st.find_one('status', [['code', '=', 'approved']])
                 # merged_at = pull_request_info.get('merged_at')    获取合并的时间
@@ -84,7 +84,7 @@ class GiteePullRequest(Resource):
                 result = self.st.update('client', st_issue.get('id'), new_data)
                 return "已更新Issue信息，从Strack得到返回内容： %s" % result, 201
 
-            return '未做任何修改', 204
+            return '未做任何修改', 200
         except Exception as e:
             return traceback.format_exc(), 400
 
