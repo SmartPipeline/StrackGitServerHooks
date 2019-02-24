@@ -70,7 +70,7 @@ class GiteePullRequest(Resource):
                 return u'没找到pull request信息', 403
             # 判断pr被merge的时候，结束对应的strack任务
             if args.get('action') == 'merge':
-                branch_name = pull_request_info.get('source_branch')
+                branch_name = args.get('source_branch')
                 st_issue = self.st.find_one('client', [['code', '=', branch_name]])
                 if not st_issue:
                     return u'Issue %s 不存在，未做任何修改' % branch_name, 200
