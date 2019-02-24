@@ -1,7 +1,7 @@
 # coding=utf8
 # Copyright (c) 2018 CineUse
 from strack import Strack
-from utils import FilterParser
+from src.utils import FilterParser
 
 
 class StrackV1(Strack):

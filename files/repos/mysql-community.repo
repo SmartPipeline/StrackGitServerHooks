@@ -1,0 +1,19 @@
+[mysql-connectors-community]
+name=MySQL Connectors Community
+baseurl=http://192.168.31.46/repos/yum/mysql-connectors-community/
+enabled=1
+gpgcheck=0
+
+[mysql-tools-community]
+name=MySQL Tools Community
+baseurl=http://192.168.31.46/repos/yum/mysql-tools-community/
+enabled=1
+gpgcheck=0
+
+# Note: MySQL 5.7 is currently in development. For use at your own risk.
+# Please read with sub pages: https://dev.mysql.com/doc/relnotes/mysql/5.7/en/
+[mysql57-community-dmr]
+name=MySQL 5.7 Community Server Development Milestone Release
+baseurl=http://192.168.31.46/repos/yum/mysql57-community-dmr/
+enabled=1
+gpgcheck=0

@@ -1,7 +1,7 @@
 # coding=utf8
 # Copyright (c) 2018 CineUse
 
-from flask_restplus import reqparse, Api, Resource
+from flask_restplus import reqparse
 
 
 def get_arg_parser(args_list):
