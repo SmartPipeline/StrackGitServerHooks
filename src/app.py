@@ -69,8 +69,8 @@ class GiteePullRequest(Resource):
             if not pull_request_info:
                 return '没找到pull request信息', 403
             # 判断pr被merge的时候，结束对应的strack任务
-            if args.get('action') == 'closed' and pull_request_info.get('merged'):
-                branch_name = pull_request_info.get('head', {}).get('ref')
+            if args.get('action') == 'merge':
+                branch_name = pull_request_info.get('source_branch')
                 st_issue = self.st.find_one('client', [['code', '=', branch_name]])
                 if not st_issue:
                     return 'Issue不存在，未做任何修改', 204
@@ -81,10 +81,10 @@ class GiteePullRequest(Resource):
                     'status_id': approved_status.get('id'),
                     # 'end_time': merged_at  # 设置结束时间
                 }
-                result = self.st.update('task', st_issue.get('id'), new_data)
+                result = self.st.update('client', st_issue.get('id'), new_data)
                 return "已更新Issue信息，从Strack得到返回内容： %s" % result, 201
 
-            return '，未做任何修改', 204
+            return '未做任何修改', 204
         except Exception as e:
             return traceback.format_exc(), 400
 
