@@ -45,7 +45,7 @@ PARSER = get_arg_parser(arg_list)
 @hook_namespace.route('/strack_hook')
 class GiteePullRequest(Resource):
     st_info = {
-        'url': 'http://129.204.29.79:88/strack',
+        'url': 'https://cineuse.strack.vip/strack',
         'login': 'gitee',
         'passwd': 'gitee2Strack'
     }
@@ -60,11 +60,29 @@ class GiteePullRequest(Resource):
     @hook_namespace.doc('create a new user')
     @hook_namespace.expect(PARSER)
     def post(self):
+        if not self.st:
+                return 'Strack信息有误', 403
         try:
             # 解析payload
             args = parse_args(PARSER)
-            #
-            return args.get('action'), 201
+            pull_request_info = args.get('pull_request', {})
+            if not pull_request_info:
+                return '没找到pull request信息', 403
+            # 判断pr被merge的时候，结束对应的strack任务
+            if args.get('action') == 'closed' and pull_request_info.get('merged'):
+                branch_name = pull_request_info.get('head', {}).get('ref')
+                st_issue = self.st.find_one('client', [['code', '=', branch_name]])
+                # update st_task
+                approved_status = self.st.find_one('status', ['code', '=', 'approved'])
+                # merged_at = pull_request_info.get('merged_at')    获取合并的时间
+                new_data = {
+                    'status_id': approved_status.get('id'),
+                    # 'end_time': merged_at  # 设置结束时间
+                }
+                result = self.st.update('task', st_issue.get('id'), new_data)
+                return "已更新Issue信息，从Strack得到返回内容： %s" % result, 201
+
+            return 'Issue不存在，未做任何修改', 204
         except Exception as e:
             return traceback.format_exc(), 400
 
