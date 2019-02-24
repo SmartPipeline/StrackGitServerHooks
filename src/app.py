@@ -73,7 +73,7 @@ class GiteePullRequest(Resource):
                 branch_name = pull_request_info.get('head', {}).get('ref')
                 st_issue = self.st.find_one('client', [['code', '=', branch_name]])
                 # update st_task
-                approved_status = self.st.find_one('status', ['code', '=', 'approved'])
+                approved_status = self.st.find_one('status', [['code', '=', 'approved']])
                 # merged_at = pull_request_info.get('merged_at')    获取合并的时间
                 new_data = {
                     'status_id': approved_status.get('id'),
