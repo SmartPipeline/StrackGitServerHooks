@@ -75,7 +75,7 @@ class GiteePullRequest(Resource):
                 if not st_issue:
                     return u'Issue %s dose not exists on strack, nothing changed' % branch_name, 200
                 # update st_task
-                approved_status = self.st.find_one('status', [['code', '=', 'approved']])
+                approved_status = self.st.find_one('status', [['code', '=', 'delivered']])
                 # merged_at = pull_request_info.get('merged_at')    获取合并的时间
                 new_data = {
                     'status_id': approved_status.get('id'),
