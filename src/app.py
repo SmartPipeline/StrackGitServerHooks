@@ -76,10 +76,12 @@ class GiteePullRequest(Resource):
                     return u'Issue %s dose not exists on strack, nothing changed' % branch_name, 200
                 # update st_task
                 approved_status = self.st.find_one('status', [['code', '=', 'delivered']])
-                # merged_at = pull_request_info.get('merged_at')    获取合并的时间
+                merged_at = pull_request_info.get('merged_at')    # 获取合并的时间
+                commit_id = pull_request_info.get('merge_commit_sha')   # 获取commit_id
                 new_data = {
                     'status_id': approved_status.get('id'),
-                    # 'end_time': merged_at  # 设置结束时间
+                    'end_time': merged_at,  # 设置结束时间
+                    'gitee_commit': commit_id
                 }
                 result = self.st.update('client', st_issue.get('id'), new_data)
                 return u'Updated issue data on strack: %s' % result, 201
